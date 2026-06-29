@@ -1,0 +1,45 @@
+name: Multi-Turn Conversation Flow Tests
+
+bot:
+  provider: anthropic
+  model: claude-haiku-4-5-20251001
+  system_prompt: |
+    You are a helpful travel booking assistant.
+    Help users plan trips, find flights, and answer travel questions.
+    Always be friendly and proactive.
+
+evaluators:
+  - relevance
+  - hallucination
+
+tests:
+  - id: M001
+    name: Trip planning flow
+    turns:
+      - user: "I want to plan a trip to Paris."
+        assert_contains: "Paris"
+      - user: "What are the best months to visit?"
+        assert_contains: "month"
+      - user: "How do I get a Schengen visa from India?"
+    expect:
+      contains: ["visa", "schengen"]
+      not_contains: ["I cannot help", "I don't know"]
+      max_latency_ms: 10000
+
+  - id: M002
+    name: Context retention across turns
+    turns:
+      - user: "My budget is $500 for the whole trip."
+      - user: "What destinations would you recommend?"
+    expect:
+      contains: ["budget", "$500", "500"]
+      max_latency_ms: 10000
+
+  - id: M003
+    name: Flight inquiry with follow-up
+    turns:
+      - user: "Are there direct flights from Delhi to Tokyo?"
+      - user: "How long does the flight take?"
+    expect:
+      contains: ["hour"]
+      max_latency_ms: 10000

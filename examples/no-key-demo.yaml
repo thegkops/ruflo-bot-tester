@@ -1,0 +1,27 @@
+name: No-API-Key Demo (format + latency only)
+
+# Start the mock server first: node examples/mock-server.js
+bot:
+  provider: http
+  endpoint: http://localhost:3099
+  response_path: response
+
+evaluators:
+  - relevance      # will be skipped — no key
+  - safety         # will be skipped — no key
+
+tests:
+  - id: D001
+    name: Response time check
+    turns:
+      - user: "Hello bot"
+    expect:
+      max_latency_ms: 5000
+
+  - id: D002
+    name: Format keyword check (will fail — echo won't contain 'hello')
+    turns:
+      - user: "Say hello"
+    expect:
+      contains: ["hello"]
+      max_latency_ms: 5000
